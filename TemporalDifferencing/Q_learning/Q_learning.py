@@ -74,13 +74,14 @@ def run(episodes, render=False, training=True):
         
     for i in range(episodes):
         average_rewards[i] = np.mean(rewards[max(0, i-100):i+1])
-    plt.plot(average_rewards, c='red')
-    plt.title("Rolling Average Rewardd")
-    plt.xlabel("Episodes")
-    plt.ylabel("Average Reward")
-    plt.savefig('TemporalDifferencing/Q_learning/frozen_lake8x8.png')
 
     if training:
+        plt.plot(average_rewards, c='red')
+        plt.title("Rolling Average Reward")
+        plt.xlabel("Episodes")
+        plt.ylabel("Average Reward")
+        plt.savefig('TemporalDifferencing/Q_learning/frozen_lake8x8.png')
+
         f = open('TemporalDifferencing/Q_learning/frozen_lake8x8.pkl', 'wb')
         pickle.dump(Q, f)
         f.close()
