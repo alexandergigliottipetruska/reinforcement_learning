@@ -9,4 +9,6 @@ For reinforcement learning algorithms, it is essential to balance exploration an
 
 $$min(0.01, \epsilon_0 \lambda^t)$$
 
-Finally, the standard learning rate $$\alpha$$ was decayed based on how often a particular action was taken given a state, for all state and action combinations.
+Additionally, the standard learning rate $$\alpha$$ was decayed based on how often a particular action was taken given a state, for all state and action combinations.
+
+Finally, with regard to the environment, FrozenLake was chosen due to the challenges presented by its stochastic nature and its obstacles, where the agent has a chance of 'slipping' (moving in a random direction) every time they move.
