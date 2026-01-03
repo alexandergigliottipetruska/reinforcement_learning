@@ -3,7 +3,7 @@ utilizes bootstrapping as it uses existing estimates to compute new ones. Moreov
 (which states to visit and update) is different from the target policy that is being evaluated and is greedy with respect to the action value function.
 The update formula is the following:
 
-$$Q(s, a) \gets Q(S, A) + \alpha (r + \gamma max_aQ(s', a') - Q(s, a))$$
+$$Q(s, a) \gets Q(s, a) + \alpha (r + \gamma max_aQ(s', a') - Q(s, a))$$
 
 For reinforcement learning algorithms, it is essential to balance exploration and exploitation. When training, at the beginning the agent should be mostly exploring to discover its environment and towards the end should be exploiting its accumulated knowledge as much as possible. To implement this, an exponential decay for $\epsilon$ was used, with a minimum set to ensure a small amount of exploration still remained at the very end.
 
