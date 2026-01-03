@@ -81,7 +81,7 @@ def run(episodes, render=False, training=True):
         average_rewards[i] = np.mean(rewards[max(0, i-100):i+1])
 
     if training:
-        plt.plot(average_rewards, c='red')
+        plt.plot(average_rewards, c='purple')
         plt.title("Rolling Average Reward")
         plt.xlabel("Episodes")
         plt.ylabel("Average Reward")
