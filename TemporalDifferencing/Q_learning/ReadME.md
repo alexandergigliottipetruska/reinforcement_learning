@@ -11,4 +11,4 @@ $$min(0.01, \epsilon_0 \lambda^t)$$
 
 Additionally, the standard learning rate $$\alpha$$ was decayed based on how often a particular action was taken given a state, for all state and action combinations.
 
-Finally, with regard to the environment, FrozenLake was chosen due to the challenges presented by its stochastic nature and its obstacles, where the agent has a chance of 'slipping' (moving in a random direction) every time they move.
+Finally, with regard to the environment, FrozenLake was chosen due to the challenges presented by its stochastic nature and its obstacles, where the agent has a chance of 'slipping' (moving in a random perpendicular direction) every time it moves. Rewards are 1 for successfully reaching the target, and 0 for falling in a hole or taking a step. A consequence of this reward system is the agent doesn't look for the shortest possible route to the target, as it is not penalized for wandering around, as long as it eventually reaches its destination.
