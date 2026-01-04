@@ -4,28 +4,28 @@ import matplotlib.pyplot as plt
 import pickle
 import numpy as np
 
-class SARSA:
+class Q_learning:
     def __init__(self, state_space, action_space, discount_factor=0.99, learning_rate=0.1):
         self.g = discount_factor
         self.a = learning_rate
         self.Q = np.zeros((state_space, action_space))
 
-    def update(self, state, action, next_state, reward, next_action):
-        self.Q[state, action] = self.Q[state, action] + self.a * (reward + self.g * self.Q[next_state, next_action] - self.Q[state, action])
+    def update(self, state, action, next_state, reward):
+        self.Q[state, action] = self.Q[state, action] + self.a * (reward + self.g * np.max(self.Q[next_state, :]) - self.Q[state, action])
         
     def action_values(self, state):
         return self.Q[state, :]
 
 def run(episodes, render=False, training=True):
-    env = gym.make("CliffWalking-v1", render_mode='human' if render else None)
+    env = gym.make("FrozenLake-v1", map_name='8x8', is_slippery=True, render_mode='human' if render else None)
 
     if training:
         state_space = env.observation_space.n
         action_space = env.action_space.n
 
-        Q = SARSA(state_space, action_space)
+        Q = Q_learning(state_space, action_space)
     else:
-        f = open('TemporalDifferencing/Sarsa/cliff_walking.pkl', 'rb')
+        f = open('TemporalDifference/Q_learning/frozen_lake8x8.pkl', 'rb')
         Q = pickle.load(f)
         f.close()
 
@@ -44,29 +44,24 @@ def run(episodes, render=False, training=True):
         terminated = False
         truncated = False
 
-        if training and random_generator.random() < epsilon:
-            action = env.action_space.sample()
-        else:
-            action_values = Q.action_values(state)
-            action = np.random.choice(np.flatnonzero(action_values == np.max(action_values)))
-
         while (not terminated and not truncated):
+            if training and random_generator.random() < epsilon:
+                action = env.action_space.sample()
+            else:
+                action_values = Q.action_values(state)
+                action = np.random.choice(np.flatnonzero(action_values == np.max(action_values)))
+
             Q.a = 1/ ((1 + state_counter[state, action])**beta)
             state_counter[state, action] += 1
+            
+            
 
             next_state, reward, terminated, truncated, _ = env.step(action)
 
-            if training and random_generator.random() < epsilon:
-                next_action = env.action_space.sample()
-            else:
-                next_action_values = Q.action_values(next_state)
-                next_action = np.random.choice(np.flatnonzero(next_action_values == np.max(next_action_values)))
-
             if training:
-                Q.update(state, action, next_state, reward, next_action)
+                Q.update(state, action, next_state, reward)
 
             state = next_state
-            action = next_action
 
             rewards[i] += reward
 
@@ -81,13 +76,13 @@ def run(episodes, render=False, training=True):
         average_rewards[i] = np.mean(rewards[max(0, i-100):i+1])
 
     if training:
-        plt.plot(average_rewards, c='purple')
+        plt.plot(average_rewards, c='red')
         plt.title("Rolling Average Reward")
         plt.xlabel("Episodes")
         plt.ylabel("Average Reward")
-        plt.savefig('TemporalDifferencing/Sarsa/cliff_walking.png')
+        plt.savefig('TemporalDifference/Q_learning/frozen_lake8x8.png')
 
-        f = open('TemporalDifferencing/Sarsa/cliff_walking.pkl', 'wb')
+        f = open('TemporalDifference/Q_learning/frozen_lake8x8.pkl', 'wb')
         pickle.dump(Q, f)
         f.close()
 

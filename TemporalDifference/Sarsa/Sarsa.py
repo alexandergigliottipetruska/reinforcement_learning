@@ -4,41 +4,28 @@ import matplotlib.pyplot as plt
 import pickle
 import numpy as np
 
-class ExpectedSARSA:
+class SARSA:
     def __init__(self, state_space, action_space, discount_factor=0.99, learning_rate=0.1):
         self.g = discount_factor
         self.a = learning_rate
         self.Q = np.zeros((state_space, action_space))
-        self.action_space = action_space
 
-    def update(self, state, action, next_state, reward, epsilon):
-        actions = np.zeros(self.action_space)
-        
-        next_state_action_values = self.action_values(next_state)
-        greedy_actions = np.flatnonzero(next_state_action_values == np.max(next_state_action_values))
-
-        for a in greedy_actions:
-            actions[a] = (1 - epsilon) / len(greedy_actions)
-        
-        for a in range(len(actions)):
-            if a not in greedy_actions:
-                actions[a] = epsilon / (self.action_space - 1)
-
-        self.Q[state, action] = self.Q[state, action] + self.a * (reward + self.g * np.dot(actions, self.Q[next_state, :]) - self.Q[state, action])
+    def update(self, state, action, next_state, reward, next_action):
+        self.Q[state, action] = self.Q[state, action] + self.a * (reward + self.g * self.Q[next_state, next_action] - self.Q[state, action])
         
     def action_values(self, state):
         return self.Q[state, :]
 
 def run(episodes, render=False, training=True):
-    env = gym.make("Taxi-v3", render_mode='human' if render else None)
+    env = gym.make("CliffWalking-v1", render_mode='human' if render else None)
 
     if training:
         state_space = env.observation_space.n
         action_space = env.action_space.n
 
-        Q = ExpectedSARSA(state_space, action_space)
+        Q = SARSA(state_space, action_space)
     else:
-        f = open('TemporalDifferencing/Expected_Sarsa/taxi.pkl', 'rb')
+        f = open('TemporalDifference/Sarsa/cliff_walking.pkl', 'rb')
         Q = pickle.load(f)
         f.close()
 
@@ -57,22 +44,29 @@ def run(episodes, render=False, training=True):
         terminated = False
         truncated = False
 
-        while (not terminated and not truncated):
-            if training and random_generator.random() < epsilon:
-                action = env.action_space.sample()
-            else:
-                action_values = Q.action_values(state)
-                action = np.random.choice(np.flatnonzero(action_values == np.max(action_values)))
+        if training and random_generator.random() < epsilon:
+            action = env.action_space.sample()
+        else:
+            action_values = Q.action_values(state)
+            action = np.random.choice(np.flatnonzero(action_values == np.max(action_values)))
 
+        while (not terminated and not truncated):
             Q.a = 1/ ((1 + state_counter[state, action])**beta)
             state_counter[state, action] += 1
 
             next_state, reward, terminated, truncated, _ = env.step(action)
 
+            if training and random_generator.random() < epsilon:
+                next_action = env.action_space.sample()
+            else:
+                next_action_values = Q.action_values(next_state)
+                next_action = np.random.choice(np.flatnonzero(next_action_values == np.max(next_action_values)))
+
             if training:
-                Q.update(state, action, next_state, reward, epsilon)
+                Q.update(state, action, next_state, reward, next_action)
 
             state = next_state
+            action = next_action
 
             rewards[i] += reward
 
@@ -87,13 +81,13 @@ def run(episodes, render=False, training=True):
         average_rewards[i] = np.mean(rewards[max(0, i-100):i+1])
 
     if training:
-        plt.plot(average_rewards, c='blue')
+        plt.plot(average_rewards, c='purple')
         plt.title("Rolling Average Reward")
         plt.xlabel("Episodes")
         plt.ylabel("Average Reward")
-        plt.savefig('TemporalDifferencing/Expected_Sarsa/taxi.png')
+        plt.savefig('TemporalDifference/Sarsa/cliff_walking.png')
 
-        f = open('TemporalDifferencing/Expected_Sarsa/taxi.pkl', 'wb')
+        f = open('TemporalDifference/Sarsa/cliff_walking.pkl', 'wb')
         pickle.dump(Q, f)
         f.close()
 
