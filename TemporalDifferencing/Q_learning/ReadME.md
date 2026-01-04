@@ -1,3 +1,4 @@
+# Q-learning
 Q-learning is a temporal difference algorithm that computes updates by choosing the action at the next time-step that maximizes the $Q(s', a')$. It 
 utilizes bootstrapping as it uses existing estimates to compute new ones. Moreover, it is off-policy, the control policy that generates behaviours
 (which states to visit and update) is different from the target policy that is being evaluated and is greedy with respect to the action value function.
