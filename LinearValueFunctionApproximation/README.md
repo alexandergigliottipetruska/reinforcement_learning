@@ -6,11 +6,11 @@ Lookup tables of the form $Q(s, a)$ where each state s has an entry for all poss
 
 Incremental methods rely on minimizing the MSE between the true value function $q_{\pi}(s, a)$ and the approximate value $\hat{q}(s, a, w,)$ using stochastic gradient descent. True value functions are not usually not known and are provided via targets, using Sarsa the target is
 
-$$r + \gamma max_{a'}Q(s', a')$$
+$$r + \gamma q_{\pi}(s', a')=r + \gamma \hat{q}(s', a', w)$$
 
 And the gradient becomes
 
-$$\Delta w = \alpha (q_{\pi}(s, a) - \hat{q}(s, a, w))\nabla_{w}\hat{q}(s, a, w) = \alpha \delta x(s, a)$$
+$$\Delta w = \alpha (r + \gamma \hat{q}(s', a', w) - \hat{q}(s, a, w))\nabla_{w}\hat{q}(s, a, w) = \alpha \delta x(s, a)$$
 
 Note gradients are not taken with respect to the targets, only the approximations. And the value function approximator is,
 
