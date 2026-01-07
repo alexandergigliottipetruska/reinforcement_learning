@@ -53,8 +53,6 @@ def run(episodes, render=False, training=True):
 
             Q.a = 1/ ((1 + state_counter[state, action])**beta)
             state_counter[state, action] += 1
-            
-            
 
             next_state, reward, terminated, truncated, _ = env.step(action)
 
