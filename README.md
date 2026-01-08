@@ -1,4 +1,4 @@
-The intention of this repository is to demonstrate a knowledge of foundational and advanced reinforcement learning algorithms on a wide variety of environments, including CLassic Control, Box2D, 
+The intention of this repository is to demonstrate a knowledge of foundational and advanced reinforcement learning algorithms on a wide variety of environments, including Classic Control, Box2D, 
 Toy Text, MuJoCo, and Atari games. The goal is to be able to efficiently apply all these algorithms to a wide variety of real-world cases, and start building proper projects in the field.
 
 Here is a list of the algorithms and topics to be covered in this repository, with the date indicating completion.
