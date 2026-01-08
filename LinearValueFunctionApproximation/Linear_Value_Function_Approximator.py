@@ -31,8 +31,7 @@ class Estimator():
         if a is not None:
             x = self.extract_features(s, a)
         else:
-            q_values = np.zeros(self.action_space)
-            return np.array([self.extract_features(s, a) @ self.w[i] + self.b[i] for i in range(self.action_space)])
+            return np.array([self.extract_features(s, a) @ self.w[a] + self.b[a] for a in range(self.action_space)])
 
         return x @ self.w[a] + self.b[a]
 
@@ -104,7 +103,7 @@ def run(episodes, render, training):
 
             rewards[i] += reward
 
-        # Exponential epsilon decay
+        # Linear Epsilon decay
         epsilon = max(0.01, epsilon - 1e-4)
 
     # Close env
