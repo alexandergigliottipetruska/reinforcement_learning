@@ -25,4 +25,4 @@ In order to deal with these, DQN contains 3 main innovations:
 $$L_i(w_i) = \mathbb{E}_{s, a, r, s' \sim D_i}[(r + \gamma \max_{a'}Q(s', a'; w_i^{-}) - Q(s, a; w_i))^2]$$
 
 - Use a variant of stochastic gradient descent
-- Use old params for targets and new params for approximatoin.
+- Use old params for targets and new params for approximation.
