@@ -18,14 +18,6 @@ A natural consequence is that the more often a state is visited, the more it cou
 
 $$\mu(s) = \sum_{t=0}^{\infty} \gamma^{t} P(S_t = s | \pi)$$
 
-## Actor-Critic Methods
-Actor Critic methods learn approximations to both policy and value functions. The Critic learns a value function which is used for bootstrapping and criticizes policy's action selections by assigning credit, while the Actor is the learned policy.
-Moreover, a one-step AC replaces full-return with one-step return and uses a learned state value function as a baseline.
-
-$$\theta_{t+1} = \theta_{t} + \alpha (R_{t+1} + \gamma \hat{v} (S_{t+1}, w) - \hat{v} (S_t, w)) \frac{\nabla \pi(A_t | S_t, \theta_t)}{\pi (A_t | S_t, \theta_t)}$$
-
-States, actions, and rewards are processed as they occur and never revisited. The algorithm implemented follows the one presented in Sutton's RL book.
-
 ## Continuous Actions
 Policy-based methods can deal with large action spaces, even an infinite number, by learning statistics of probability distributions. With policy parametrization, policy is probability density over real-valued scalar action.
 Where mean and standard deviation are given by parametric function approximation. In this case, the probability density for a Gaussian distribution is used,
