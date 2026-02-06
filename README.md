@@ -4,6 +4,8 @@ Toy Text, MuJoCo, and Atari games. The goal is to be able to efficiently apply a
 Here is a list of the algorithms and topics to be covered in this repository, with the date indicating completion.
 - **Temporal Difference (SARSA, Expected SARSA, Q-learning)**, 04/01/2026
 - **Linear Value Function Approximation**, 07/01/2026
+- **Advanced Policy Gradient**
+  - **Soft Actor-Critic** (SAC) 06/02/2026
   
 To do:
 - **Deep Q-networks**
