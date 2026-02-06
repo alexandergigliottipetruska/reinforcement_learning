@@ -8,6 +8,8 @@ Therefore, it aims to maximize expected reward and entropy simultaneously, succe
 ![Humanoid score](https://github.com/alexandergigliottipetruska/reinforcement_learning/raw/main/assets/real_ant_demo.gif)
 ![Humanoid score](https://github.com/alexandergigliottipetruska/reinforcement_learning/raw/main/assets/cheetah_demo1.gif)
 
+The three main experiments with their rolling average return over 100 episodes: **Humanoid** (5202.24), **Ant** (4834.88), and **HalfCheetah** (8103.09). 
+
 ## Maximum Entropy Framework
 The maximum entropy objective favors stochastic policies,
 
