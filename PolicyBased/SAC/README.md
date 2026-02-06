@@ -4,6 +4,10 @@ Actor Critic methods learn approximations to both policy and value functions. Th
 Soft-Actor Critic (SAC) is an actor-critic algorithm designed to address very high sample complexity and brittle convergence found in traditional model-free Deep RL algorithms, by basing itself on the maximum entropy RL framework.
 Therefore, it aims to maximize expected reward and entropy simultaneously, succeeding while acting as randomly as possible. It is sample efficient, stable, and can be extended to complex, high dimensional data.
 
+![Humanoid score](https://github.com/alexandergigliottipetruska/reinforcement_learning/raw/main/assets/humanoid_demo2_smaller.gif)
+![Humanoid score](https://github.com/alexandergigliottipetruska/reinforcement_learning/raw/main/assets/real_ant_demo.gif)
+![Humanoid score](https://github.com/alexandergigliottipetruska/reinforcement_learning/raw/main/assets/cheetah_demo1.gif)
+
 ## Maximum Entropy Framework
 The maximum entropy objective favors stochastic policies,
 
