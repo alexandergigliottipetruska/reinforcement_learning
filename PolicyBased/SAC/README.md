@@ -65,6 +65,19 @@ $$\max_{\theta}\mathbb{E}_{s \sim D, \xi \sim \mathcal{N}} [\min_{j=1, 2}Q_{\phi
 
 When evaluating, at test time, remove the stochasticy by using the mean action instead of sampling from the distribution, contributes to the performance.
 
+## Sources
+
+Here is a list of sources used for this README.md and for learning about Soft Actor-Critic (SAC):
+
+1. **Original SAC Paper** – *Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor*  
+   [Link to paper](https://arxiv.org/abs/1801.01290) by Tuomas Haarnoja, Aurick Zhou, Pieter Abbeel, and Sergey Levine.
+
+2. **OpenAI Spinning Up in Deep RL** – SAC documentation and tutorial  
+   [Link to Spinning Up SAC](https://spinningup.openai.com/en/latest/algorithms/sac.html)
+
+3. **CleanRL SAC Implementation** – Minimal, reproducible PyTorch implementation  
+   [Link to CleanRL SAC](https://github.com/vwxyzjn/cleanrl/blob/master/cleanrl/sac_continuous_action.py)
+
 
 
 
