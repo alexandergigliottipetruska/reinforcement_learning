@@ -9,7 +9,7 @@ The maximum entropy RL objective aims to maximize expected reward and expected e
 ![Humanoid score](https://github.com/alexandergigliottipetruska/reinforcement_learning/raw/main/assets/new_ant_gif.gif)
 ![Humanoid score](https://github.com/alexandergigliottipetruska/reinforcement_learning/raw/main/assets/new_cheetah_gif.gif)
 
-The three main experiments with their rolling average return over 100 episodes: **Humanoid** (5202.24), **Ant** (5814.51), and **HalfCheetah** (13571.46). 
+The three main experiments with their rolling average return over 100 episodes: **Humanoid** (5202.24), **Ant** (5814.51), and **HalfCheetah** (13571.46). The top evaluation scores (average return over 10 episodes rollout every 20k time steps) were **HalfCheetah** (13952.70), **Ant** (5814.51), and **Humanoid** (5543.15).  
 
 ## Maximum Entropy Framework
 The maximum entropy objective includes both the expected sum of rewards and expected entropy. 
