@@ -7,17 +7,12 @@ from collections import deque
 import random
 from torch.distributions import Normal
 import os
-import time
 
-# Device
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-# Save directory
 SAVE_DIR = "/content/drive/MyDrive/rl/sac/walker"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-## Replay Buffer
 class ReplayBuffer(object):
   def __init__(self, state_dim, action_dim, size=1e6):
     super().__init__()
@@ -69,8 +64,6 @@ class ReplayBuffer(object):
   def __len__(self):
     return self.current_len
   
-## Network Architecture
-# Q-Functions
 class Q1(nn.Module):
   def __init__(self, state_space, action_space, hidden_size=256):
     super().__init__()
@@ -101,8 +94,7 @@ class Q2(nn.Module):
     x = self.ffn3(x)
     return x
   
-# Policy
-log_std_min = -5
+log_std_min = -5 # values taken from CleanRL
 log_std_max = 2
 
 class policy(nn.Module):
@@ -120,11 +112,11 @@ class policy(nn.Module):
     x = self.relu(self.ffn2(x))
     mu = self.mu(x)
     log_std = self.tanh(self.log_std(x))
-    log_std = log_std_min + 0.5 * (log_std_max - log_std_min) * (log_std * 1) # Found in Spinning Up, Yarats, and CleanRL
+    log_std = log_std_min + 0.5 * (log_std_max - log_std_min) * (log_std + 1) # Found in Spinning Up, Yarats, and CleanRL
     return mu, log_std
   
 class SAC():
-  def __init__(self, discount=0.99, smoothing_coefficient=0.005, batch_size=1024, total_steps=3000000, buffer_size=1e6):
+  def __init__(self, discount=0.99, smoothing_coefficient=0.005, batch_size=256, total_steps=500000, buffer_size=1e6):
     # General Hyperparameters
     self.discount_factor = discount
     self.tau = smoothing_coefficient
@@ -166,15 +158,51 @@ class SAC():
     self.action_bias = None
 
     # Reward scaling
-    self.reward_scaling = 1.0
-    self.alpha = None
+    self.reward_scaling = 5.0
+    self.alpha = 0.2
 
     # Autotune
-    self.autotune = True
+    self.autotune = False
+
+    # Evaluation
+    self.eval_interval = 20000
+    self.eval_returns = []
+    self.eval_steps = []
+    self.eval_episodes = 10
+    self.eval_env = None
+
+  def evaluate(self):
+    eval_rewards = []
+    for episode in range(self.eval_episodes):
+      state = self.eval_env.reset()[0]
+      done = False
+      total_reward = 0
+
+      while not done:
+        mu, _ = self.policy(torch.as_tensor(state, dtype=torch.float32).to(device))
+        # SAC must be deterministic at evaluation 
+        # Open AI Spinning Up says remove stochasticity by using mean instead of sampling from a distribution.
+        with torch.no_grad():
+          action = torch.tanh(mu) * self.action_scale + self.action_bias
+          action = action.detach().cpu().numpy()
+
+        next_state, reward, terminated, truncated, _ = self.eval_env.step(action)
+
+        done = terminated or truncated
+        total_reward += reward
+
+        state = next_state
+
+      eval_rewards.append(total_reward)
+
+    average_reward = sum(eval_rewards) / len(eval_rewards)
+
+    return average_reward
 
   def train(self, render=False):
     # Create environment
-    env = gym.make("Ant-v5", render_mode="human" if render else None)
+    env = gym.make("HalfCheetah-v5", render_mode="human" if render else None)
+    self.eval_env = gym.make("HalfCheetah-v5")
 
     # Get spaces and scale + bias
     state_space = env.observation_space.shape
@@ -244,7 +272,7 @@ class SAC():
       done = terminated or truncated
 
       # Store transition in replay buffer
-      transition = (state, action, reward*self.reward_scaling, next_state, done)
+      transition = (state, action, reward*self.reward_scaling, next_state, terminated)
       self.buffer.push(transition)
 
       # Track episode returns
@@ -358,75 +386,27 @@ class SAC():
           target_params.data.copy_(q2_targ_params)
 
       if global_time_step % 50000 == 0:
-          torch.save(self.q1.state_dict(), os.path.join(SAVE_DIR, f"sac_ant_q1_{global_time_step}.pth"))
-          torch.save(self.q2.state_dict(), os.path.join(SAVE_DIR, f"sac_ant_q2_{global_time_step}.pth"))
-          torch.save(self.policy.state_dict(), os.path.join(SAVE_DIR, f"sac_ant_policy_{global_time_step}.pth"))
+          torch.save(self.q1.state_dict(), os.path.join(SAVE_DIR, f"sac_halfcheeta_q1_{global_time_step}.pth"))
+          torch.save(self.q2.state_dict(), os.path.join(SAVE_DIR, f"sac_halfcheetah_q2_{global_time_step}.pth"))
+          torch.save(self.policy.state_dict(), os.path.join(SAVE_DIR, f"sac_halfcheetah_policy_{global_time_step}.pth"))
 
+      # Evaluation (following SAC paper)
+      if global_time_step > self.warmup and global_time_step % self.eval_interval == 0:
+        evaluation_return = self.evaluate()
+        self.eval_returns.append(evaluation_return)
+        self.eval_steps.append(global_time_step)
+
+        print(f"Evaluation Return at {global_time_step} is {evaluation_return:.2f}")
 
       global_time_step += 1
 
-## Evaluation
-class LiveDemo():
-    def __init__(self, device):
-        self.device = device
+    env.close()
+    self.eval_env.close()
 
-    def run(self, episodes=5, fps=60):
-        env = gym.make("Ant-v5", render_mode="human")
-        state_dim = env.observation_space.shape[0]
-        action_dim = env.action_space.shape[0]
+    plt.plot(self.eval_steps, self.eval_returns)
+    plt.xlabel("Steps")
+    plt.ylabel("Average return")
+    plt.title("HalfCheetah-v5")
+    plt.show()
+
     
-        # Scale and bias should match training settings
-        action_scale = torch.tensor((env.action_space.high - env.action_space.low) / 2.0, dtype=torch.float32).to(self.device)
-        action_bias = torch.tensor((env.action_space.high + env.action_space.low) / 2.0, dtype=torch.float32).to(self.device)
-
-        # Load the policy
-        trained_policy = policy(num_obvs=state_dim, num_actions=action_dim).to(self.device)
-        
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        model_path = os.path.join(base_path, 'ant_model.pth')
-
-        trained_policy.load_state_dict(torch.load(model_path, map_location=self.device))
-        trained_policy.eval()
-    
-        print(f"Running {episodes} episodes...")
-
-        for i in range(episodes):
-            state, _ = env.reset()
-            done = False
-            truncated = False
-            total_reward = 0
-            
-            # For a more bird's eye view
-            env.render() 
-            try:
-                viewer = env.unwrapped.mujoco_renderer.viewer
-                viewer.cam.type = 0          
-                viewer.cam.distance = 8.0      
-                viewer.cam.elevation = -20      
-                viewer.cam.lookat[0] = 2.0     
-            except Exception:
-                pass
-
-            while not (done or truncated):
-                time.sleep(1/fps) # slow it down
-                
-                state_t = torch.as_tensor(state, dtype=torch.float32).unsqueeze(0).to(self.device)
-
-                with torch.no_grad():
-                    mu, _ = trained_policy(state_t) # get the mean and use it instead of sampling from a distribution
-                    
-                    # Apply tanh and scaling
-                    action_squashed = torch.tanh(mu)
-                    action = (action_squashed * action_scale + action_bias).cpu().numpy().squeeze()
-
-                state, reward, done, truncated, _ = env.step(action)
-                total_reward += reward
-
-            print(f"Episode {i+1} Reward: {total_reward:.2f}")
-
-        env.close()
-
-if __name__ == "__main__":
-    ## Training
-    sac = SAC()
-    sac.train()
