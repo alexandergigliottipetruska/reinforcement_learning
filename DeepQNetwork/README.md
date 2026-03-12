@@ -24,7 +24,7 @@ In order to deal with these, DQN contains 3 main innovations:
 2. Store transition $(s_t, a_t, r_{t+1}, s_{t+1})$ in replay memory D
 3. Sample random mini-batch of transitions $(s, a, r, s')$ from D
 4. Compute Q-learning w.r.t. old, fixed parameters $w^{-}$
-5. Optimize MLE between Q-network and Q-learning targets
+5. Optimize MSE between Q-network and Q-learning targets
 
 $$L_i(w_i) = \mathbb{E}_{s, a, r, s' \sim D_i}[(r + \gamma \max_{a'}Q(s', a'; w_i^{-}) - Q(s, a; w_i))^2]$$
 
